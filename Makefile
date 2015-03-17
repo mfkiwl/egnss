@@ -31,7 +31,7 @@ CONFIG_DIR=$(CURDIR)/configs
 
 DEFCONFIG_FILE=$(CURDIR)/$(PROJECT_NAME)/defconfig
 
-.PHONY: default
+.PHONY: default clean
 
 default:
 	$(MAKE) $(ARGS) BR2_DEFCONFIG="$(DEFCONFIG_FILE)" defconfig
@@ -48,13 +48,11 @@ savedefconfig:
 
 # Build project-specific defconfig
 %_defconfig: $(PROJECT_NAME)
-	$(MAKE) $(ARGS) BR2_DEFCONFIG="$(DEFCONFIG_FILE)" $@ savedefconfig
-	cat "$(CURDIR)/external_config" >> "$(DEFCONFIG_FILE)"
+	$(MAKE) $(ARGS) BR2_DEFCONFIG="$(DEFCONFIG_FILE)" $(CONFIG_DIR)/$@ savedefconfig
 	$(MAKE) $(ARGS) BR2_DEFCONFIG="$(DEFCONFIG_FILE)" defconfig savedefconfig
 
 # Make the required defconfig file
 $(DEFCONFIG_FILE):  $(PROJECT_NAME)
-	cat "$(CURDIR)/external_config" >> "$@"
 	$(MAKE) $(ARGS) BR2_DEFCONFIG="$@" defconfig savedefconfig
 
 $(PROJECT_NAME):
@@ -65,3 +63,6 @@ menuconfig nconfig xconfig gconfig oldconfig slientoldconfig randconfig\
  allyesconfig allnoconfig randpackageconfig allyespackageconfig \
  allnopackageconfig: $(DEFCONFIG_FILE)
 	$(MAKE) $(ARGS) BR2_DEFCONFIG="$^" defconfig $@ savedefconfig
+
+clean:
+	$(MAKE) $(ARGS) BR2_DEFCONFIG=$(DEFCONFIG_FILE) clean
