@@ -1,0 +1,10 @@
+# Temporary files
+*~
+
+# Generated directories
+output
+dl
+egnss
+
+# defconfigs created by make
+defconfig
