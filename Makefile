@@ -48,7 +48,7 @@ savedefconfig:
 
 # Build project-specific defconfig
 %_defconfig: $(PROJECT_NAME)
-	$(MAKE) $(ARGS) BR2_DEFCONFIG="$(DEFCONFIG_FILE)" $(CONFIG_DIR)/$@ savedefconfig
+	$(MAKE) $(ARGS) BR2_DEFCONFIG="$(DEFCONFIG_FILE)" $@ savedefconfig
 	$(MAKE) $(ARGS) BR2_DEFCONFIG="$(DEFCONFIG_FILE)" defconfig savedefconfig
 
 # Make the required defconfig file

@@ -3,3 +3,4 @@ config BR2SM_PROJECT_NAME
 	option env="PROJECT_NAME"
 
 source "$BR2_EXTERNAL/package/gnss-sdr/Config.in"
+source "$BR2_EXTERNAL/package/gr-osmosdr/Config.in"
