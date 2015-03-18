@@ -1,0 +1,8 @@
+config BR2_PACKAGE_GROSMOSDR
+       bool "gr-osmosdr"
+       select BR2_PACKAGE_LIBUSB
+       select BR2_PACKAGE_GNURADIO
+       help
+         Osmocom Gnu Radio Blocks
+
+	 http://sdr.osmocom.org/trac/wiki/GrOsmoSDR
