@@ -1,11 +1,21 @@
 # Embedded GNSS
 Buildroot project for an embedded software-defined GNSS receiver.
 
+## Making
+
+Choose a board to build for and make that board's defconfig. Currently supported boards are:
+
+  - **Raspberry Pi**: `make rpi_defconfig`
+
+Now `make` (and maybe go make a coffee). Once this has finished building, you will have an image ready to load onto your board. See the documentation for the board to learn how to do this.
+
 ## Contact
 
 Anthony Arnold
+
 University of Queensland
-anthony.arnold at uqconnect dot edu dot au
+
+`anthony.arnold at uqconnect dot edu dot au`
 
 ----
 This file is part of egnss.
