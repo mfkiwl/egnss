@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GNSS_SDR_VERSION = next
+GNSS_SDR_VERSION = 3f5c8965c6c384af331757a3aa82fce52f7ff087
 GNSS_SDR_LICENSE = GPL
 GNSS_SDR_LICENSE_FILES = COPYING
 GNSS_SDR_SITE = https://github.com/gnss-sdr/gnss-sdr
