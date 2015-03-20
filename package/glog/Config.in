@@ -1,0 +1,6 @@
+config BR2_PACKAGE_GLOG
+       bool "glog"
+       help
+         C++ implementation of the Google logging module
+
+	 https://github.com/google/glog

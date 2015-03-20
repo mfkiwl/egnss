@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 506176d..f0f6899 100644
+index 506176d..d9ee823 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -20,9 +20,6 @@
@@ -12,10 +12,29 @@ index 506176d..f0f6899 100644
  cmake_minimum_required(VERSION 2.8)
  project(gnss-sdr CXX C)
  list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
-@@ -665,67 +662,6 @@ if(OS_IS_LINUX)
+@@ -398,11 +395,15 @@ if(OS_IS_MACOSX)
+     endif(CMAKE_GENERATOR STREQUAL Xcode)
+ endif(OS_IS_MACOSX)
+ if(NOT VOLK_GNSSSDR_FOUND)
++    set(VOLK_GNSSSDR_CMAKE_ARGS -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/volk_gnsssdr_module/install -DENABLE_STATIC_LIBS=ON ${STRIP_VOLK_GNSSSDR_PROFILE} ${USE_MACPORTS_PYTHON})
++    if (CMAKE_TOOLCHAIN_FILE)
++        set(VOLK_GNSSSDR_CMAKE_ARGS ${VOLK_GNSSSDR_CMAKE_ARGS} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE})
++    endif (CMAKE_TOOLCHAIN_FILE)
+     ExternalProject_Add(volk_gnsssdr_module
+          PREFIX ${CMAKE_CURRENT_BINARY_DIR}/volk_gnsssdr_module
+          SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/libs/volk_gnsssdr_module/volk_gnsssdr
+          BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/volk_gnsssdr_module/build   
+-         CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/volk_gnsssdr_module/install -DENABLE_STATIC_LIBS=ON ${STRIP_VOLK_GNSSSDR_PROFILE} ${USE_MACPORTS_PYTHON}
++         CMAKE_ARGS ${VOLK_GNSSSDR_CMAKE_ARGS}
+          DOWNLOAD_COMMAND ""
+          UPDATE_COMMAND ""
+          PATCH_COMMAND ""
+@@ -663,69 +664,6 @@ if(OS_IS_LINUX)
+         endif(${LINUX_DISTRIBUTION} MATCHES "Fedora" OR ${LINUX_DISTRIBUTION} MATCHES "Red Hat")
+         message(FATAL_ERROR "BLAS is required to build gnss-sdr")
      endif(NOT BLAS)
-     #############################################
-     # Check that GFORTRAN is found in the system
+-    #############################################
+-    # Check that GFORTRAN is found in the system
 -    #############################################
 -    find_library(GFORTRAN NAMES gfortran
 -                 PATHS /usr/lib
