@@ -8,7 +8,7 @@ ERROR='\e[0;31m'
 
 # Take built image and rpi firmware and create bootable image.
 IMAGEDIR=$1
-ROOTFS=$IMAGEDIR/rootfs.tar
+ROOTFS=$IMAGEDIR/rootfs.ext4
 BOOTDIR=$IMAGEDIR/boot
 ROOTDIR=$IMAGEDIR/root
 
@@ -24,7 +24,7 @@ ROOTSIZE="`du -b $ROOTFS | cut -f 1 | awk '{print $1 * 2}'`"
 
 unmount_img() {
     sync
-    if [ command -v guestmount >/dev/null 2>&1 ]; then
+    if [ command -v guestunmount >/dev/null 2>&1 ]; then
 	pid="$(cat guestmount.pid)"
 	guestunmount "$1"
 
@@ -69,11 +69,7 @@ make_img () {
     echo -e ${INFO}Making $IMG of size $SIZE${NC}
 
     # Make image here - use quick fallocate if possible
-    if [ command -v fallocate >/dev/null 2>&1 ]; then
-        fallocate -l $SIZE "$IMG"
-    else
-        dd if=/dev/zero of="$IMG" bs=1M count=$SIZE iflag=count_bytes
-    fi
+    $HOST_DIR/usr/bin/fallocate -l $SIZE "$IMG"
 
     if [ $? -eq 0 ]; then
 	echo -e ${INFO}Making $FS filesystem on $IMG${NC}
@@ -109,21 +105,7 @@ if [ $? -ne 0 ]; then
 fi
 
 #OK, now make the root filesystem
-# Name of root image
-ROOTIMG="$IMAGEDIR/root.img"
-make_img "$ROOTIMG" $ROOTSIZE "$ROOTDIR" ext4 -F
-if [ $? -ne 0 ]; then
-    echo -e ${ERROR} Failed to make image. Exiting. ${NC}
-    exit 1
-fi
-
-$HOST_DIR/usr/bin/fakeroot -- tar -lxmf $IMAGEDIR/rootfs.tar -C $ROOTDIR
-
-unmount_img $ROOTDIR
-if [ $? -ne 0 ]; then
-    echo -e ${ERROR} Failed to unmount image. Exiting. ${NC}
-    exit 1
-fi
+ROOTIMG="$ROOTFS"
 
 # Name of the image to build
 IMAGE="$IMAGEDIR/egnss_rpi_3.19.y_$( date +%Y%m%d ).img"
