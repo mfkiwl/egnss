@@ -4,7 +4,7 @@
 # Generated directories
 output
 dl
-egnss
+./egnss
 
 # defconfigs created by make
 defconfig
