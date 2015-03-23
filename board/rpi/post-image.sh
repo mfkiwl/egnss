@@ -59,6 +59,16 @@ cp $IMAGEDIR/rpi-firmware/start.elf $BOOTDIR
 cp $IMAGEDIR/rpi-firmware/fixup.dat $BOOTDIR
 cp $IMAGEDIR/rpi-firmware/cmdline.txt $BOOTDIR
 
+# Set the desired config.txt
+#  - low gpu mem (video not required)
+#  - medium-level overclocking
+printf "%s\n" \
+"gpu_mem=16" \
+"arm_freq=900" \
+"core_freq=333" \
+"sdram_freq=450" \
+"over_voltage=2" > $BOOTDIR/config.txt
+
 sync
 if [ command -v guestunmount >/dev/null 2>&1 ]; then
 	pid="$(cat guestmount.pid)"
