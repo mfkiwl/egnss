@@ -1,4 +1,10 @@
-#!/bin/sh
+#!/bin/bash
+
+# Colours
+NC='\e[0m'
+INFO='\e[0;36m'
+WARN='\e[0;33m'
+ERROR='\e[0;31m'
 
 # Take built image and rpi firmware and create bootable image.
 IMAGEDIR=$1
@@ -16,67 +22,125 @@ BOOTM="64M"
 # Estimate the root partition size
 ROOTSIZE="`du -b $ROOTFS | cut -f 1 | awk '{print $1 * 2}'`"
 
+unmount_img() {
+    sync
+    if [ command -v guestmount >/dev/null 2>&1 ]; then
+	pid="$(cat guestmount.pid)"
+	guestunmount "$1"
+
+	count=10
+	while kill -o "$pid" 2>/dev/null && [ $count -gt 0]; do
+	    sleep 1
+	    ((count--))
+	done
+	if [ $count -eq 0 ]; then
+	    echo -e "${ERROR}timed out waiting for guestmount${NC}"
+	    return 1
+	fi
+    else
+	sudo umount "$1"
+    fi
+}
+
+mount_img() {
+    IMG=$1
+    DIR=$2
+    ARGS=$3
+
+    if [ command -v guestmount >/dev/null 2>&1 ]; then
+	guestmount -a "$IMG" -i --pid-file guestmount.pid "$DIR"
+    else
+	# Fall back to using loop
+	echo -e ${WARN}guestmount not found. Use loop device.${NC}
+	sudo mount -o loop,owner,dev,suid,user,$ARGS  "$IMG" "$DIR"
+	sudo chmod -R a+rwx "$DIR"
+	sleep 1
+    fi
+}
+
 make_img () {
     IMG=$1
     SIZE=$2
     DIR=$3
     FS=$4
+    MKFS_ARGS=$5
+    MNT_ARGS=$6
 
-    echo Making $IMG of size $SIZE
+    echo -e ${INFO}Making $IMG of size $SIZE${NC}
 
     # Make image here - use quick fallocate if possible
     if [ command -v fallocate >/dev/null 2>&1 ]; then
         fallocate -l $SIZE "$IMG"
     else
-        dd if=/dev/zero of="$IMG" bs=1MB count=$SIZE iflag=count_bytes
+        dd if=/dev/zero of="$IMG" bs=1M count=$SIZE iflag=count_bytes
     fi
 
-    echo Making $FS filesystem on $IMG
-    mkfs -t $FS $IMG
+    if [ $? -eq 0 ]; then
+	echo -e ${INFO}Making $FS filesystem on $IMG${NC}
+	mkfs -t $FS $MKFS_ARGS "$IMG"
+    fi
+
+    if [ $? -eq 0 ]; then
+	echo -e ${INFO}Mounting $IMG to $DIR${NC}
+	mount_img "$IMG" "$DIR" "$MNT_ARGS"
+    fi
 }
+
 
 # Name of boot image
 BOOTIMG="$IMAGEDIR/boot.img"
-make_img "$BOOTIMG" $BOOTSIZE "$BOOTDIR" vfat
+make_img "$BOOTIMG" $BOOTSIZE "$BOOTDIR" vfat "" umask=0
+if [ $? -ne 0 ]; then
+    echo -e ${ERROR}Failed to make image. Exiting.${NC}
+    exit 1
+fi
 
-# Mount it, and write firmware
-echo Mounting $BOOTIMG to $BOOTDIR
-sudo mount -o loop $BOOTIMG $BOOTDIR
+# Write firmware
+cp $IMAGEDIR/zImage $BOOTDIR/kernel.img
+cp $IMAGEDIR/rpi-firmware/bootcode.bin $BOOTDIR
+cp $IMAGEDIR/rpi-firmware/start.elf $BOOTDIR
+cp $IMAGEDIR/rpi-firmware/fixup.dat $BOOTDIR
+cp $IMAGEDIR/rpi-firmware/cmdline.txt $BOOTDIR
 
-sudo cp $IMAGEDIR/zImage $BOOTDIR/kernel.img
-sudo cp $IMAGEDIR/rpi-firmware/bootcode.bin $BOOTDIR
-sudo cp $IMAGEDIR/rpi-firmware/start.elf $BOOTDIR
-sudo cp $IMAGEDIR/rpi-firmware/fixup.dat $BOOTDIR
-sudo cp $IMAGEDIR/rpi-firmware/cmdline.txt $BOOTDIR
+unmount_img $BOOTDIR
+if [ $? -ne 0 ]; then
+    echo -e ${ERROR} Failed to unmount image. Exiting. ${NC}
+    exit 1
+fi
 
-echo Unmounting $BOOTDIR
-sudo umount $BOOTDIR
-
-#OK, now make to the root filesystem
+#OK, now make the root filesystem
 # Name of root image
 ROOTIMG="$IMAGEDIR/root.img"
-make_img "$ROOTIMG" $ROOTSIZE "$ROOTDIR" ext4
+make_img "$ROOTIMG" $ROOTSIZE "$ROOTDIR" ext4 -F
+if [ $? -ne 0 ]; then
+    echo -e ${ERROR} Failed to make image. Exiting. ${NC}
+    exit 1
+fi
 
-# Mount it and unpack the root filesystem
-echo Mounting $ROOTIMG to $ROOTDIR
-sudo mount -o loop $ROOTIMG $ROOTDIR
-sudo tar -xf $IMAGEDIR/rootfs.tar -C $ROOTDIR
+$HOST_DIR/usr/bin/fakeroot -- tar -lxmf $IMAGEDIR/rootfs.tar -C $ROOTDIR
 
-echo Unmounting $ROOTDIR
-sudo umount $ROOTDIR
+unmount_img $ROOTDIR
+if [ $? -ne 0 ]; then
+    echo -e ${ERROR} Failed to unmount image. Exiting. ${NC}
+    exit 1
+fi
 
 # Name of the image to build
 IMAGE="$IMAGEDIR/egnss_rpi_3.19.y_$( date +%Y%m%d ).img"
-echo Making $IMAGE of size $IMAGESIZE
+echo -e ${INFO}Making $IMAGE of size $IMAGESIZE${NC}
 
 # Make 1 MB for the MBR and partition table
 dd if=/dev/zero of=$IMAGE bs=1M count=1
+if [ $? -ne 0 ]; then
+    echo -e ${ERROR} Failed to write MBR. ${NC}
+    exit 1
+fi
 
 # Concatenate
 cat $BOOTIMG >> $IMAGE
 cat $ROOTIMG >> $IMAGE
 
-echo Partioning $IMAGE
+echo -e ${INFO}Partioning $IMAGE${NC}
 fdisk "$IMAGE" << EOF
 n
 p
@@ -93,8 +157,13 @@ p
 w
 EOF
 
+if [ $? -ne 0 ]; then
+    echo -e ${ERROR} Failed to make partitions. Exiting. ${NC}
+    exit 1
+fi
+
 fdisk -l "$IMAGE"
 
 # DONE
 rmdir $BOOTDIR $ROOTDIR
-echo "Image $IMAGE ready"
+echo -e "${INFO}Image $IMAGE ready${NC}"
