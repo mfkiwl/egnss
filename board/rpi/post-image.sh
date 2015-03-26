@@ -93,7 +93,7 @@ fi
 
 # Name of the image to build
 IMAGE="$IMAGEDIR/egnss_rpi_3.19.y_$( date +%Y%m%d ).img"
-echo -e ${INFO}Making $IMAGE of size $IMAGESIZE${NC}
+echo -e ${INFO}Making $IMAGE${NC}
 
 # Make 1 MB for the MBR and partition table
 dd if=/dev/zero of=$IMAGE bs=1M count=1
