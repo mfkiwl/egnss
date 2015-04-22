@@ -41,6 +41,7 @@ if [ $? -eq 0 ]; then
     #"core_freq=333" \
     #"sdram_freq=450" \
     #"over_voltage=2" \
+    #"avoid_pwm_pll=1" \
     #""> $IMAGEDIR/rpi-firmware/config.txt
 
     # Write firmware
