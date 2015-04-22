@@ -23,6 +23,7 @@ ROOTIMG="$ROOTFS"
 
 echo -e ${INFO} "Making $BOOTIMG of size $BOOTSIZE" ${NC}
 # Allocate enough for the boot part
+rm -rf "$BOOTIMG"
 $HOST_DIR/usr/bin/fallocate -l $BOOTSIZE "$BOOTIMG"
 
 if [ $? -eq 0 ]; then
@@ -34,17 +35,18 @@ if [ $? -eq 0 ]; then
     # Set the desired config.txt
     #  - low gpu mem (video not required)
     #  - medium-level overclocking
-    printf "%s\n" \
-    "gpu_mem=16" \
-    "arm_freq=900" \
-    "core_freq=333" \
-    "sdram_freq=450" \
-    "over_voltage=2" > $IMAGEDIR/rpi-firmware/config.txt
+    #printf "%s\n" \
+    #"gpu_mem=16" \
+    #"arm_freq=900" \
+    #"core_freq=333" \
+    #"sdram_freq=450" \
+    #"over_voltage=2" \
+    #""> $IMAGEDIR/rpi-firmware/config.txt
 
     # Write firmware
     $HOST_DIR/usr/bin/mcopy -i $BOOTIMG $IMAGEDIR/zImage ::kernel.img
+    #$HOST_DIR/usr/bin/mcopy -i $BOOTIMG $IMAGEDIR/rpi-firmware/config.txt ::
     $HOST_DIR/usr/bin/mcopy -i $BOOTIMG \
-        $IMAGEDIR/rpi-firmware/config.txt \
         $IMAGEDIR/rpi-firmware/bootcode.bin \
         $IMAGEDIR/rpi-firmware/start.elf \
         $IMAGEDIR/rpi-firmware/fixup.dat \
