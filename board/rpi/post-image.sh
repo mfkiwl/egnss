@@ -40,14 +40,14 @@ if [ $? -eq 0 ]; then
     "core_freq=333" \
     "sdram_freq=450" \
     "over_voltage=2" > $IMAGEDIR/rpi-firmware/config.txt
-    
+
     # Write firmware
     $HOST_DIR/usr/bin/mcopy -i $BOOTIMG $IMAGEDIR/zImage ::kernel.img
     $HOST_DIR/usr/bin/mcopy -i $BOOTIMG \
-        $IMAGEDIR/rpi-firmware/
+        $IMAGEDIR/rpi-firmware/config.txt \
         $IMAGEDIR/rpi-firmware/bootcode.bin \
-	$IMAGEDIR/rpi-firmware/start.elf \
-	$IMAGEDIR/rpi-firmware/fixup.dat \
+        $IMAGEDIR/rpi-firmware/start.elf \
+        $IMAGEDIR/rpi-firmware/fixup.dat \
         $IMAGEDIR/rpi-firmware/cmdline.txt ::
 fi
 
