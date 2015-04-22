@@ -59,7 +59,7 @@ $(PROJECT_NAME):
 	mkdir -p $@
 
 # updating configs
-menuconfig nconfig xconfig gconfig oldconfig slientoldconfig randconfig\
+linux-menuconfig menuconfig nconfig xconfig gconfig oldconfig slientoldconfig randconfig\
  allyesconfig allnoconfig randpackageconfig allyespackageconfig \
  allnopackageconfig: $(DEFCONFIG_FILE)
 	$(MAKE) $(ARGS) BR2_DEFCONFIG="$^" defconfig $@ savedefconfig
