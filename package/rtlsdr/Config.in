@@ -1,8 +1,0 @@
-config BR2_PACKAGE_RTLSDR
-	bool "rtlsdr"
-	depends on BR2_INSTALL_LIBSTDCPP
-	depends on BR2_TOOLCHAIN_HAS_THREADS
-	help
-	 DVB-T dongles based on the Realtek RTL2832U can be used as a cheap SDR, since the chip allows transferring the raw I/Q samples to the host, which is officially used for DAB/DAB+/FM demodulation. The possibility of this has been discovered by Eric Fry.
-
-	 http://sdr.osmocom.org/trac/wiki/rtl-sdr

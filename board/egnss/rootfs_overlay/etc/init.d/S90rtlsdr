@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# Config
+LISTEN_ADDR=0.0.0.0   # all
+LISTEN_PORT=1234      # default
+FREQUENCY=1575420000  # GPS L1 Hz
+GAIN=0                # Auto
+SAMPLERATE=20000000   # 2MHz
+
+LOCKFILE=/var/run/rtl_tcp
+
+# Listen on all interfaces
+run() {
+    trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
+    rtl_tcp -a $LISTEN_ADDR -p $LISTEN_PORT -f $FREQUENCY -g $GAIN -s $SAMPLERATE
+    rm -f $LOCKFILE
+}
+
+stop_running() {
+    if [ ! -e ${LOCKFILE} ]; then
+        echo "${LOCKFILE} not found. Probably not running."
+    else
+        kill -s INT `cat ${LOCKFILE}`
+    fi
+}
+
+start_running() {
+    if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}`; then
+        echo "Already running."
+        exit
+    fi
+    run &
+    echo $! > ${LOCKFILE}
+}
+
+case $1 in
+    start)
+        start_running
+    stop)
+        stop_running
+    restart)
+        stop_running
+        start_running
+    *)
+        echo "Use: start stop restart"
+esac

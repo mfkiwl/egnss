@@ -1,7 +1,0 @@
-config BR2_PACKAGE_OSMOSDR
-	bool "osmosdr"
-	select BR2_PACKAGE_LIBUSB
-    help
-     OsmoSDR is a 100% Free Software based small form-factor inexpensive SDR (Software Defined Radio) project.
-
-	 http://sdr.osmocom.org

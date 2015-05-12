@@ -29,7 +29,7 @@ ARGS += PROJECT_NAME=$(PROJECT_NAME)
 # directory containing build configurations
 CONFIG_DIR=$(CURDIR)/configs
 
-DEFCONFIG_FILE=$(CURDIR)/$(PROJECT_NAME)/defconfig
+DEFCONFIG_FILE=$(CURDIR)/defconfig
 
 .PHONY: default clean
 

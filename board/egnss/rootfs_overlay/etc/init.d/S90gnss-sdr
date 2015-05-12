@@ -1,4 +1,0 @@
-#!/bin/sh
-#Start up gnss-sdr
-
-# Run front-end-cal, write config file, then start gnss-sdr
