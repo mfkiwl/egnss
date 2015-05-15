@@ -1,0 +1,44 @@
+#!/bin/sh
+
+GENESIS_ADDRESS=239.255.255.1
+LOCKFILE=/var/run/genesis_ping
+
+
+run() {
+    trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
+    while true
+    do
+        genesis_ping ${GENESIS_ADDRESS}
+        sleep 60
+    done
+    rm -f $LOCKFILE
+}
+
+stop_running() {
+    if [ ! -e ${LOCKFILE} ]; then
+        echo "${LOCKFILE} not found. Probably not running."
+    else
+        kill -s INT `cat ${LOCKFILE}`
+    fi
+}
+
+start_running() {
+    if [ -e ${LOCKFILE} ] && kill -0 `cat ${LOCKFILE}`; then
+        echo "Already running."
+        exit
+    fi
+    run &
+    echo $! > ${LOCKFILE}
+}
+
+case $1 in
+    start)
+        start_running
+    stop)
+        stop_running
+    restart)
+        stop_running
+        start_running
+    *)
+        echo "Use: start stop restart"
+esac

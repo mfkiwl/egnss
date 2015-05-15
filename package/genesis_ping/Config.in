@@ -1,0 +1,13 @@
+config BR2_PACKAGE_GENSESIS_PING
+	bool "genesis_ping"
+	depends on BR2_INSTALL_LIBSTDCPP
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+    select BR2_PACKAGE_BOOST
+    select BR2_PACKAGE_BOOST_SYSTEM
+	help
+	 Broadcasts udp packets to Genesis
+
+	 https://github.com/anthony-arnold/genesis
+
+comment "genesis_ping needs a toolchain w/ C++, threads"
+	depends on !(BR2_INSTALL_LIBSTDCPP && BR2_TOOLCHAIN_HAS_THREADS)
