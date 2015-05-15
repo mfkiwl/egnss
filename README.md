@@ -11,7 +11,9 @@ Now `make` (and maybe go make a coffee). Once this has finished building, you wi
 
 ## Using
 
-Now that you have a device running egnss, you'll need to log into it over ssh. Plug your board into the network and switch it on; you should have a DHCP server running. Determine the boards IP address, and ssh to it. You can now run gnss-sdr; see http://gnss-sdr.org/ for more details.
+Now that you have a device running egnss, you'll need to log into it over ssh. Plug your board into the network and switch it on; you should have a DHCP server running.
+
+Now head on over to https://github.com/anthony-arnold/genesis to start receiving signals.
 
 ## Contact
 
