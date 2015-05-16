@@ -9,18 +9,13 @@ SAMPLERATE=20000000   # 2MHz
 
 LOCKFILE=/var/run/rtl_tcp
 
-# Listen on all interfaces
-run() {
-    trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
-    rtl_tcp -a $LISTEN_ADDR -p $LISTEN_PORT -f $FREQUENCY -g $GAIN -s $SAMPLERATE
-    rm -f $LOCKFILE
-}
 
 stop_running() {
     if [ ! -e ${LOCKFILE} ]; then
         echo "${LOCKFILE} not found. Probably not running."
     else
-        kill -s INT `cat ${LOCKFILE}`
+        kill -s TERM `cat ${LOCKFILE}`
+        rm -rf ${LOCKFILE}
     fi
 }
 
@@ -29,18 +24,23 @@ start_running() {
         echo "Already running."
         exit
     fi
-    run &
+    rtl_tcp -a $LISTEN_ADDR -p $LISTEN_PORT -f $FREQUENCY -g $GAIN -s $SAMPLERATE > /dev/null 2>&1 &
     echo $! > ${LOCKFILE}
 }
 
 case $1 in
     start)
         start_running
+        ;;
     stop)
         stop_running
+        ;;
     restart)
         stop_running
         start_running
+        ;;
     *)
         echo "Use: start stop restart"
+        exit 1
+        ;;
 esac

@@ -1,15 +1,21 @@
 #!/bin/sh
 
+STATION_TYPE=`cat /etc/station_type`
 GENESIS_ADDRESS=239.255.255.1
 LOCKFILE=/var/run/genesis_ping
 
 
 run() {
     trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
+    i=60
     while true
     do
-        genesis_ping ${GENESIS_ADDRESS}
-        sleep 60
+        if [ $i -eq 60 ]; then
+            genesis_ping ${GENESIS_ADDRESS} ${STATION_TYPE} > /dev/null 2>&1
+            i=0
+        fi
+        i=$((i+1))
+        sleep 1
     done
     rm -f $LOCKFILE
 }
@@ -18,7 +24,7 @@ stop_running() {
     if [ ! -e ${LOCKFILE} ]; then
         echo "${LOCKFILE} not found. Probably not running."
     else
-        kill -s INT `cat ${LOCKFILE}`
+        kill -s TERM `cat ${LOCKFILE}`
     fi
 }
 
@@ -34,11 +40,16 @@ start_running() {
 case $1 in
     start)
         start_running
+        ;;
     stop)
         stop_running
+        ;;
     restart)
         stop_running
         start_running
+        ;;
     *)
         echo "Use: start stop restart"
+        exit 1
+        ;;
 esac
