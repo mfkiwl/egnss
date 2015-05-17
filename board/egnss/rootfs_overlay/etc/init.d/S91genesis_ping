@@ -1,9 +1,8 @@
 #!/bin/sh
 
-STATION_TYPE=`cat /etc/station_type`
-GENESIS_ADDRESS=239.255.255.1
+STATION_TYPE=`grep station_type /etc/genesis_ping.conf | cut -d " " -f 2`
+GENESIS_ADDRESS=`grep address /etc/genesis_ping.conf | cut -d " " -f 2`
 LOCKFILE=/var/run/genesis_ping
-
 
 run() {
     trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
