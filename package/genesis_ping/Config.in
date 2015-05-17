@@ -1,4 +1,4 @@
-config BR2_PACKAGE_GENSESIS_PING
+config BR2_PACKAGE_GENESIS_PING
 	bool "genesis_ping"
 	depends on BR2_INSTALL_LIBSTDCPP
 	depends on BR2_TOOLCHAIN_HAS_THREADS
