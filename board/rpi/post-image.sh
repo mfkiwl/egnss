@@ -11,6 +11,10 @@ ERROR='\e[0;31m'
 IMAGEDIR=$1
 ROOTFS=$IMAGEDIR/rootfs.ext4
 
+# Name of the bundle
+SYSTEMNAME=$2
+BUNDLENAME="egnss_${SYSTEMNAME}_$( date +%Y%m%d ).img"
+
 # Name of boot image
 BOOTIMG="$IMAGEDIR/boot.img"
 
@@ -60,7 +64,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Name of the image to build
-IMAGE="$IMAGEDIR/egnss_rpi_3.19.y_$( date +%Y%m%d ).img"
+IMAGE="$IMAGEDIR/$BUNDLENAME"
 echo -e ${INFO}Making $IMAGE of size $IMAGESIZE${NC}
 
 # Make 1 MB for the MBR and partition table
